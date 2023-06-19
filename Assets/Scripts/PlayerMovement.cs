@@ -64,7 +64,8 @@ public class PlayerMovement : MonoBehaviour
 		//on ground
 		if(grounded){
 		rb.AddForce(moveDirection.normalized * moveSpeed*10f,ForceMode.Force);
-
+		}
+		//in air
 		else if(!grounded)
 		{
 			rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
@@ -77,9 +78,9 @@ public class PlayerMovement : MonoBehaviour
 
 		}
 		
-		//in air
 		
 	}
+	
 	/*
 	SpeedControl() only function is to cap the player's movement speed 
 	*/
@@ -144,3 +145,4 @@ public class PlayerMovement : MonoBehaviour
 		MovePlayer();
 	}
 }
+
