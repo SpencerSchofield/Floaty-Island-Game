@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Movement")]
 	public float moveSpeed;
 	public float groundDrag;
+	public KeyCode sprintKey =KeyCode.LeftShift;
 	
 	[Header("Ground Check")]
 	public float playerHeight;
@@ -37,6 +38,12 @@ public class PlayerMovement : MonoBehaviour
 		//calculate movement direction
 		moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 		rb.AddForce(moveDirection.normalized * moveSpeed*10f,ForceMode.Force);
+		
+		
+		if(Input.GetKey(sprintKey) && grounded)
+		{
+			rb.AddForce(moveDirection.normalized * moveSpeed*20f,ForceMode.Force);
+		}
 	}
 	
 	private void SpeedControl()
