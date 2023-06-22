@@ -99,7 +99,7 @@ public class PlayerMovement : MonoBehaviour
 		moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 		
 		//on slope
-		if(OnSlope() && exitingSlope)
+		if(OnSlope() && !exitingSlope)
 		{
 			rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
 			
