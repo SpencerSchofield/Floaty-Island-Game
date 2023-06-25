@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-	
+
 	[Header("Movement")]
 	private float moveSpeed;
 	public float walkSpeed;
@@ -17,20 +17,21 @@ public class PlayerMovement : MonoBehaviour
 	public float airMultiplier;
 	public bool readyToJump = true;
 	public bool exitingSlope;
-	
+
 	[Header("KeyBinds")]
 	public KeyCode jumpKey = KeyCode.Space;
-  	public KeyCode sprintKey = KeyCode.LeftShift;
-	
+	public KeyCode sprintKey = KeyCode.LeftShift;
+	public KeyCode glideKey = KeyCode.LeftControl;
+
 	[Header("Ground Check")]
 	public float playerHeight;
 	public LayerMask whatIsGround;
 	public bool grounded;
-	
+
 	[Header("Slope Handling")]
 	public float maxSlopeAngle;
 	private RaycastHit slopeHit;
-	
+
 	public Transform orientation;
 	float horizontalInput;
 	float verticalInput;
@@ -42,17 +43,18 @@ public class PlayerMovement : MonoBehaviour
 		walking,
 		sprinting,
 		climbing,
+		gliding,
 		air
 	}
-	
+	public bool gliding;
 	public bool climbing;
-	
+
 	void Start()
 	{
 		rb = GetComponent<Rigidbody>();
-		rb.freezeRotation = true;		
+		rb.freezeRotation = true;
 	}
-	
+
 	/*
 	MyInput() function is used to get the player's input direction that the player wants to travel in and 
 	checks if they can jump, by checking if they are on the ground and enough time has passed since they last pressed jump. 
@@ -61,27 +63,40 @@ public class PlayerMovement : MonoBehaviour
 	{
 		horizontalInput = Input.GetAxisRaw("Horizontal");
 		verticalInput = Input.GetAxisRaw("Vertical");
-		
-		if(Input.GetKey(jumpKey) && readyToJump && grounded)
+
+		if (Input.GetKey(jumpKey) && readyToJump && grounded)
 		{
 			readyToJump = false;
 			Jump();
-			
+
 			Invoke(nameof(ResetJump), jumpCooldown);
 		}
-				
+
+		if (Input.GetKeyDown(glideKey) && !grounded && !gliding)
+		{
+			gliding = true;
+			Debug.Log("Glide ON");
+			
+		}
+		else if (Input.GetKeyDown(glideKey) && !grounded && gliding)
+		{
+			gliding = false;
+			Debug.Log("Glide OFF");
+		}
+
 	}
-	
+
 	private void StateHandler()
-	{	
+	{
 		//Mode - Climbing
-		if(climbing)
+		if (climbing)
 		{
 			state = MovementState.climbing;
 			moveSpeed = climbSpeed;
+			gliding = false;
 		}
 		//Mode - Sprinting
-		if(grounded && Input.GetKey(sprintKey))
+		if (grounded && Input.GetKey(sprintKey))
 		{
 			state = MovementState.sprinting;
 			moveSpeed = sprintSpeed;
@@ -91,14 +106,22 @@ public class PlayerMovement : MonoBehaviour
 		{
 			state = MovementState.walking;
 			moveSpeed = walkSpeed;
+			gliding = false;
 		}
 		//Mode - Air
 		else
 		{
-			state = MovementState.air;
+			if (gliding)
+			{
+				state = MovementState.gliding;
+			}
+			else
+			{
+				state = MovementState.air;
+			}
 		}
 	}
-	
+
 	/*
 	MovePlayer() function handles the direction the player is moving, it also allows me to change the speed they walk
 	while on the floor and the speed they have while jumping / falling in air
@@ -107,61 +130,72 @@ public class PlayerMovement : MonoBehaviour
 	{
 		//calculate movement direction
 		moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-		
+
 		//on slope
-		if(OnSlope() && !exitingSlope)
+		if (OnSlope() && !exitingSlope)
 		{
 			rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
-			
-			if(rb.velocity.y > 0)
+
+			if (rb.velocity.y > 0)
 			{
 				rb.AddForce(Vector3.down * 80f, ForceMode.Force);
 			}
 		}
-		
-		//on ground
-		else if(grounded){
-		rb.AddForce(moveDirection.normalized * moveSpeed*10f,ForceMode.Force);
-		}
-		//in air
-		else if(!grounded)
-		{
-			rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
 
+		//on ground
+		else if (grounded)
+		{
+			rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+		}
+
+		//in air
+		else if (!grounded)
+		{
+			if (gliding)
+			{
+				rb.AddForce(orientation.forward * moveSpeed * 600f * airMultiplier, ForceMode.Force);
+				//reduce falling speed
+				rb.AddForce(Vector3.up * moveSpeed * 5f * airMultiplier, ForceMode.Force);
+			}
+			else
+			{
+				rb.AddForce(moveDirection.normalized * moveSpeed * 5f * airMultiplier, ForceMode.Force);
+			}
 		}
 
 		//turn off gravity when on slope
 		rb.useGravity = !OnSlope();
-		
-		
+
 	}
-	
+
 	/*
 	SpeedControl() only function is to cap the player's movement speed 
 	*/
 	private void SpeedControl()
 	{
 		//limiting speed on slope
-		if(OnSlope() && !exitingSlope)
+		if (OnSlope() && !exitingSlope)
 		{
-			if(rb.velocity.magnitude > moveSpeed){
-			rb.velocity = rb.velocity.normalized * moveSpeed;
-		} 
+			if (rb.velocity.magnitude > moveSpeed)
+			{
+				rb.velocity = rb.velocity.normalized * moveSpeed;
+			}
 		}
 		//limiting speed on ground or air
-		else 
+		else
 		{
 			Vector3 flatVal = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-		
-		if(flatVal.magnitude > moveSpeed){
-			Vector3 limitedVal = flatVal.normalized * moveSpeed;
-			rb.velocity = new Vector3(limitedVal.x, rb.velocity.y, limitedVal.z);
-		} 
+
+			if (flatVal.magnitude > moveSpeed)
+			{
+				Vector3 limitedVal = flatVal.normalized * moveSpeed;
+				rb.velocity = new Vector3(limitedVal.x, rb.velocity.y, limitedVal.z);
+			}
 		}
-		
-		
+
+
 	}
-	
+
 	/*
 	Jump() is used to calculate the force of the jump and apply that force in an upwards trajectory
 	*/
@@ -172,31 +206,34 @@ public class PlayerMovement : MonoBehaviour
 		rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 		rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 		Debug.Log("Jump!");
-		
+
 	}
-	
+
 	/*
 	ResetJump() is used to change readyToJump bool to true after a certain amount of time
 	*/
 	private void ResetJump()
 	{
 		readyToJump = true;
-		exitingSlope= false;
+		exitingSlope = false;
+	}
+
+	private void ResetGlide()
+	{
+
 	}
 
 	private bool OnSlope()
 	{
-		if(Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+		if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
 		{
 			float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-			Debug.Log("On Slope");
-			Debug.Log(angle);
 			return angle < maxSlopeAngle && angle != 0;
-			
+
 		}
 		return false;
 	}
-	
+
 	private Vector3 GetSlopeMoveDirection()
 	{
 		return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
@@ -204,7 +241,7 @@ public class PlayerMovement : MonoBehaviour
 
 	/*
 	Update() is called once per frame
-	*/ 
+	*/
 	void Update()
 	{
 		//ground check
@@ -213,9 +250,9 @@ public class PlayerMovement : MonoBehaviour
 		MyInput();
 		SpeedControl();
 		StateHandler();
-		
+
 		//handle drag
-		if(grounded)
+		if (grounded)
 		{
 			rb.drag = groundDrag;
 		}
@@ -223,12 +260,10 @@ public class PlayerMovement : MonoBehaviour
 		{
 			rb.drag = 0;
 		}
-		
-		Debug.Log("Speed: " + rb.velocity);
-		Debug.Log("Speedo: " + rb.position.magnitude);
-		
+
+
 	}
-	
+
 	/*
 	FixedUpdate is called everyframe but after Update() - its best to keep any rigibody / physics updates with FixedUpdate
 	*/
