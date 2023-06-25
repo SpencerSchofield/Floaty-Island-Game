@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
 	private float moveSpeed;
 	public float walkSpeed;
 	public float sprintSpeed;
+	public float climbSpeed;
 	public float groundDrag;
 
 	public float jumpForce;
@@ -24,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Ground Check")]
 	public float playerHeight;
 	public LayerMask whatIsGround;
-	bool grounded;
+	public bool grounded;
 	
 	[Header("Slope Handling")]
 	public float maxSlopeAngle;
@@ -40,8 +41,11 @@ public class PlayerMovement : MonoBehaviour
 	{
 		walking,
 		sprinting,
+		climbing,
 		air
 	}
+	
+	public bool climbing;
 	
 	void Start()
 	{
@@ -69,7 +73,13 @@ public class PlayerMovement : MonoBehaviour
 	}
 	
 	private void StateHandler()
-	{
+	{	
+		//Mode - Climbing
+		if(climbing)
+		{
+			state = MovementState.climbing;
+			moveSpeed = climbSpeed;
+		}
 		//Mode - Sprinting
 		if(grounded && Input.GetKey(sprintKey))
 		{
