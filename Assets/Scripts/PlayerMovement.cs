@@ -167,7 +167,7 @@ public class PlayerMovement : MonoBehaviour
 		
 		
 	}
-	
+	//myResults = otherGameObject.GetComponent<ComponentType>() <== this can be used on all the scripts attached to the player. meaning I dont have to manual attach them.
 	/*
 	Jump() is used to calculate the force of the jump and apply that force in an upwards trajectory
 	*/
