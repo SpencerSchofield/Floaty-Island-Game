@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-	
+	public Player player;
 	[Header("Movement")]
 	private float moveSpeed;
 	public float walkSpeed;
@@ -54,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
 	}
 	
 	/*
-	MyInput() function is used to get the player's input direction that the player wants to travel in and 
+	MyInput() is used to get the player's input direction that the player wants to travel in and 
 	checks if they can jump, by checking if they are on the ground and enough time has passed since they last pressed jump. 
 	*/
 	private void MyInput()
@@ -72,8 +72,11 @@ public class PlayerMovement : MonoBehaviour
 				
 	}
 	
+	
 	private void StateHandler()
 	{	
+		float currentStamina = player.currentStamina;
+		
 		//Mode - Climbing
 		if(climbing)
 		{
@@ -81,10 +84,12 @@ public class PlayerMovement : MonoBehaviour
 			moveSpeed = climbSpeed;
 		}
 		//Mode - Sprinting
-		if(grounded && Input.GetKey(sprintKey))
+		if(grounded && Input.GetKey(sprintKey) && player.UseStamina(10))
 		{
 			state = MovementState.sprinting;
 			moveSpeed = sprintSpeed;
+			player.UseStamina(10);
+			
 		}
 		//Mode - Walking
 		else if (grounded)

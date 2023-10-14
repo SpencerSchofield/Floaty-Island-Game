@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Climbing : MonoBehaviour
-{
+{	
+	public Player player;
 	[Header("References")]
 	public Transform orientation;
 	public Rigidbody rb;
@@ -29,11 +30,11 @@ public class Climbing : MonoBehaviour
 	{
 		if(wallFront && Input.GetKey(KeyCode.W) && currentWallLookAngle < maxWallLookAngle)
 		{
-			if(!climbing && climbTimer > 0) StartClimbing();
-
-			//timer
-			if (climbTimer > 0) climbTimer -= Time.deltaTime;
-			if (climbTimer < 0) StopClimbing();
+			if(!climbing && player.UseStamina(10)){
+			StartClimbing();
+			player.UseStamina(10);
+			}
+			else StopClimbing();
 		}
 		else 
 		{
