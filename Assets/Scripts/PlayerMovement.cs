@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
 	public Player player;
+	
 	[Header("Movement")]
 	private float moveSpeed;
 	public float walkSpeed;
@@ -95,7 +96,7 @@ public class PlayerMovement : MonoBehaviour
 		else if (grounded)
 		{
 			state = MovementState.walking;
-			moveSpeed = walkSpeed;
+			moveSpeed = walkSpeed;			
 		}
 		//Mode - Air
 		else
@@ -223,6 +224,7 @@ public class PlayerMovement : MonoBehaviour
 		if(grounded)
 		{
 			rb.drag = groundDrag;
+			
 		}
 		else
 		{
