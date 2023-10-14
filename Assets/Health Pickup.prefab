@@ -42,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9130398671680874828}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &9130398671680874830
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -111,4 +111,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207b3895c4f49bf4a8b6e796aee09d6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
