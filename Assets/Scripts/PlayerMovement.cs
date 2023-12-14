@@ -73,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
 				
 	}
 	
-	
+	public Animator animator;
 	private void StateHandler()
 	{	
 		float currentStamina = player.currentStamina;
@@ -90,13 +90,19 @@ public class PlayerMovement : MonoBehaviour
 			state = MovementState.sprinting;
 			moveSpeed = sprintSpeed;
 			player.UseStamina(10);
-			
+			// if(Input.GetKey("w")){
+			// animator.SetBool("isRunning",true);
+			// }else animator.SetBool("isRunning",false);
 		}
 		//Mode - Walking
 		else if (grounded)
 		{
 			state = MovementState.walking;
-			moveSpeed = walkSpeed;			
+			moveSpeed = walkSpeed;
+			// if(Input.GetKey("w"))
+			// {
+			// 	animator.SetBool("isWalking",true);
+			// } else animator.SetBool("isWalking",false);
 		}
 		//Mode - Air
 		else
@@ -118,7 +124,7 @@ public class PlayerMovement : MonoBehaviour
 		if(OnSlope() && !exitingSlope)
 		{
 			rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
-			
+
 			if(rb.velocity.y > 0)
 			{
 				rb.AddForce(Vector3.down * 80f, ForceMode.Force);

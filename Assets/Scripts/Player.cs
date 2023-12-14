@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
 		maxStamina = 100;
 	}
 	
+		
 	/*
 	HealPlayer() heals player by certain amount
 	*/
@@ -83,7 +84,5 @@ public class Player : MonoBehaviour
 			hb.SetHealth(health);
 		}
 	}
-	
-	
 	
 }
